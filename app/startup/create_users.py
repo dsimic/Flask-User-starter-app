@@ -11,12 +11,23 @@ def create_users():
     # Adding roles
     admin_role = find_or_create_role('admin', u'Admin')
 
-    # Add users
-    user = find_or_create_user(
-        u'Admin', u'Example', u'admin@example.com', 'Password1', admin_role)
-    user = find_or_create_user(
-        u'User', u'Example', u'user@example.com', 'Password1')
+    # User role
+    user_role = find_or_create_role('user', u'User')
 
+    # Add admin users
+    for elem in app.config['APP_USER_ADMINS']:
+        print "Creating user", elem
+        user = find_or_create_user(
+            elem[0], elem[1], elem[2], elem[3],
+            admin_role
+        )
+    # Add providers
+    for elem in app.config['APP_USER_REGULAR']:
+        print "Creating user", elem
+        user = find_or_create_user(
+            elem[0], elem[1], elem[2], elem[3],
+            user_role
+        )
     # Save to DB
     db.session.commit()
 
