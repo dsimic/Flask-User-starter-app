@@ -8,7 +8,6 @@ from flask_user import UserManager, SQLAlchemyAdapter
 from flask_wtf.csrf import CsrfProtect
 import os
 from app import app, db, manager
-from app.admin import admin
 
 
 @app.before_first_request
@@ -26,29 +25,21 @@ def create_app(extra_config_settings={}):
     # ***** Initialize app config settings *****
     # Read common settings from 'app/startup/common_settings.py' file
     app.config.from_object('app.startup.common_settings')
-    admin.name = app.config['APP_NAME']
-    # Read environment-specific settings from file
-    # defined by OS environment variable 'ENV_SETTINGS_FILE'
-    # env_settings_file = \
-    #       os.environ.get('ENV_SETTINGS_FILE', 'env_settings_example.py')
-    env_settings_file = os.environ.get('ENV_SETTINGS_FILE', 'config_local.py')
+    # Read environment-specific settings from file defined by OS environment variable 'ENV_SETTINGS_FILE'
+    env_settings_file = os.environ.get('ENV_SETTINGS_FILE', 'env_settings_example.py')
     app.config.from_pyfile(env_settings_file)
-    # Read extra config settings from function parameter
-    # 'extra_config_settings'
-    # Overwrite with 'extra_config_settings' parameter
-    app.config.update(extra_config_settings)
+    # Read extra config settings from function parameter 'extra_config_settings'
+    app.config.update(extra_config_settings)  # Overwrite with 'extra_config_settings' parameter
     if app.testing:
-        # Disable CSRF checks while testing
-        app.config['WTF_CSRF_ENABLED'] = False
+        app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF checks while testing
+
 
     # Setup Flask-Migrate
     migrate = Migrate(app, db)
-    migrate
     manager.add_command('db', MigrateCommand)
 
     # Setup Flask-Mail
     mail = Mail(app)
-    mail
 
     # Setup WTForms CsrfProtect
     CsrfProtect(app)
@@ -65,28 +56,17 @@ def create_app(extra_config_settings={}):
     init_email_error_handler(app)
 
     # Setup Flask-User to handle user account related forms
-    from app.core.models import User, UserInvitation
-    from app.core.forms import MyRegisterForm
+    from app.core.models import User, MyRegisterForm
     from app.core.views import user_profile_page
 
-    # Setup the SQLAlchemy DB Adapter
-    db_adapter = SQLAlchemyAdapter(
-        db, User, UserInvitationClass=UserInvitation)
-    user_manager = UserManager(
-        db_adapter,
-        app,  # Init Flask-User and bind to app
-        register_form=MyRegisterForm,
-        # using a custom register form with UserProfile fields
-        user_profile_view_function=user_profile_page,
+    db_adapter = SQLAlchemyAdapter(db, User)  # Setup the SQLAlchemy DB Adapter
+    user_manager = UserManager(db_adapter, app,  # Init Flask-User and bind to app
+                               register_form=MyRegisterForm,  # using a custom register form with UserProfile fields
+                               user_profile_view_function=user_profile_page,
     )
-    # to avoid pep8 complaints or unused vars
-    user_manager
 
     # Load all blueprints with their manager commands, models and views
     from app import core
-
-    # to avoid pep8 complaints or unused vars
-    core
 
     return app
 
@@ -96,8 +76,7 @@ def init_email_error_handler(app):
     Initialize a logger to send emails on error-level messages.
     Unhandled exceptions will now send an email message to app.config.ADMINS.
     """
-    if app.debug:
-        return  # Do not send error emails while developing
+    if app.debug: return  # Do not send error emails while developing
 
     # Retrieve email settings from app.config
     host = app.config['MAIL_SERVER']
@@ -127,3 +106,7 @@ def init_email_error_handler(app):
     app.logger.addHandler(mail_handler)
 
     # Log errors using: app.logger.error('Some error message')
+
+
+
+
