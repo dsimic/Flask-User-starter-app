@@ -5,8 +5,6 @@ from app.core.models import User, Role
 
 def create_users():
     """ Create users when app starts """
-    from app.core.models import User, Role
-
     # Create all tables
     db.create_all()
 
@@ -14,11 +12,15 @@ def create_users():
     admin_role = find_or_create_role('admin', u'Admin')
 
     # Add users
-    user = find_or_create_user(u'Admin', u'Example', u'admin@example.com', 'Password1', admin_role)
-    user = find_or_create_user(u'User', u'Example', u'user@example.com', 'Password1')
+    user = find_or_create_user(
+        u'Admin', u'Example', u'admin@example.com', 'Password1', admin_role)
+    user = find_or_create_user(
+        u'User', u'Example', u'user@example.com', 'Password1')
 
     # Save to DB
     db.session.commit()
+
+    return user
 
 
 def find_or_create_role(name, label):
@@ -30,7 +32,9 @@ def find_or_create_role(name, label):
     return role
 
 
-def find_or_create_user(first_name, last_name, email, password, role=None):
+def find_or_create_user(
+    first_name, last_name, email, password, role=None
+):
     """ Find existing user or create new user """
     user = User.query.filter(User.email == email).first()
     if not user:
@@ -44,5 +48,3 @@ def find_or_create_user(first_name, last_name, email, password, role=None):
             user.roles.append(role)
         db.session.add(user)
     return user
-
-
