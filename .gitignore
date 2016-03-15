@@ -80,3 +80,5 @@ pylint.out
 
 # migrations
 migrations/versions/*.py
+
+Procfile
